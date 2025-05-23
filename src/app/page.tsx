@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { WalletIcon, ChartBarIcon, Cog6ToothIcon, PlusIcon, CreditCardIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
 import WalletManager from './components/WalletManager'
@@ -8,7 +8,7 @@ import AddCardModal from './components/AddCardModal'
 import { Card, VaultState } from './types'
 import { v4 as uuidv4 } from 'uuid'
 import DepositDrawer from './components/DepositDrawer'
-
+import ConnectButton from './components/ConnectButton'
 export default function Home() {
   const [showAddCard, setShowAddCard] = useState(false)
   const [showDepositDrawer, setShowDepositDrawer] = useState(false)
@@ -60,6 +60,7 @@ export default function Home() {
     projectedApy: 16.67,
     strategy: 'Aave USDC Pool'
   })
+
 
   const handleAddCard = (cardData: Omit<Card, 'id' | 'balance' | 'lastActivity'>) => {
     const newCard: Card = {
@@ -140,13 +141,16 @@ export default function Home() {
 
       {/* Mobile Wallet Header */}
       <div className="md:hidden block px-4 pt-8 pb-4 bg-gray-50">
-        <h1 className="text-2xl font-bold text-black mb-2">Wallet</h1>
         <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-black mb-2">Wallet</h1>
+          <ConnectButton />
+        </div>
+        <div className="flex items-center justify-between mt-2">
           <div>
             <div className="text-3xl font-bold text-black">${cards.reduce((sum, c) => sum + c.balance, 0).toFixed(2)}</div>
           </div>
           <button
-            className="bg-black text-white rounded-lg px-4 py-2 font-medium text-base hover:bg-gray-800 transition-colors"
+            className="bg-black text-white rounded-lg px-4 py-2 font-medium text-base hover:bg-gray-800 transition-colors w-24"
             onClick={() => setShowDepositDrawer(true)}
           >
             Deposit
@@ -257,10 +261,7 @@ export default function Home() {
                         <div className="relative">
                           <div className="flex justify-between items-start">
                             <div className="flex flex-col">
-                              <span className={`text-2xl font-light ${card.type === 'moonwell' || card.type === 'avalanche' ? 'text-white' : 'text-gray-900'}`}>
-                                {card.name}
-                              </span>
-                              <span className={`text-xs mt-1 ${card.type === 'moonwell' ? 'text-blue-200' : card.type === 'avalanche' ? 'text-red-200' : 'text-gray-500'}`}>
+                              <span className={`text-2xl font-light ${card.type === 'moonwell' ? 'text-white' : card.type === 'avalanche' ? 'text-white' : 'text-gray-900'}`}>
                                 {card.name}
                               </span>
                             </div>
