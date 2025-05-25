@@ -4,7 +4,7 @@ ShogunCard is a modern web application that provides intelligent management of c
 
 ## Project Overview
 
-ShogunCard is part of a larger ecosystem of decentralized finance (DeFi) tools and services. The project consists of several interconnected repositories:
+ShogunCard is part of a larger ecosystem focused on decentralized finance (DeFi) card management and on-chain liquidity. The main components are:
 
 ### Core Components
 
@@ -13,33 +13,11 @@ ShogunCard is part of a larger ecosystem of decentralized finance (DeFi) tools a
    - Real-time balance tracking
    - Card management interface
    - AI-powered fund allocation
-   - [View Live Demo](https://shoguncard.com)
+   - [View Live Demo](https://cards-kappa-ebon-94.vercel.app/)
 
-2. **Vault Web Interface** ([vault-web](https://github.com/tomi204/vault-web))
-   - Vault management dashboard
-   - Deposit interface
-   - Yield tracking
-   - Strategy visualization
-
-3. **Strategies Agent** ([strategies-agent-sonic](https://github.com/lausuarez02/strategies-agent-sonic/))
-   - Off-chain execution and automation
-   - DeFi strategy management
-   - Market analysis and pattern recognition
-   - Automated arbitrage execution
-   - Smart contract interaction
-
-4. **AI Strategy Engine** ([strategies-ai-sonic](https://github.com/lausuarez02/strategies-ai-sonic/))
-   - AI-powered strategy optimization
-   - Yield farming predictions
-   - Risk analysis and alerts
-   - Integration with Allora Network
-   - Dynamic strategy signals
-
-5. **Smart Contracts** ([strategies-contracts-sonic](https://github.com/lausuarez02/strategies-contracts-sonic/))
-   - On-chain strategy execution
-   - Vault management
-   - Yield optimization
-   - Security and access control
+2. **Shogun Card Liquidity Contracts** ([contracts-avalanche](https://github.com/shogunprotocol/contracts-avalanche))
+   - Smart contracts for card liquidity and yield farming on Avalanche
+   - See details below
 
 ## Features
 
@@ -90,28 +68,101 @@ npm run dev
 - **Wallet**: RainbowKit
 - **State Management**: React Query
 
-## Project Architecture
+## Smart Contracts: Shogun Card Liquidity ([contracts-avalanche](https://github.com/shogunprotocol/contracts-avalanche))
 
-The Shogun ecosystem is designed as a modular system where each component plays a specific role:
+### Overview
 
-1. **Web Interface** (This repo)
-   - User-facing dashboard
-   - Card management
-   - Transaction interface
+This project implements a system to maintain liquidity for a Card address on Avalanche while earning yield through two strategies:
 
-2. **Backend Services**
-   - Strategy execution
-   - AI predictions
-   - Risk management
+1. **Suzaku LRT Vault**: A liquid restaking token vault that provides yield through restaking
+2. **Benqi USDC Pool**: A lending pool that provides yield through interest
 
-3. **Smart Contracts**
-   - On-chain operations
-   - Fund management
-   - Security protocols
+### Deployed Contracts
 
-## Contributing
+- `CardVault`: ERC-4626 wrapper that earns yield and mints cCARD-USDC tokens
+  - Address: [0xda08b2C66f6c0CEBD79286bC5b069221ec4e9741](https://snowtrace.io/address/0xda08b2C66f6c0CEBD79286bC5b069221ec4e9741)
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- `BufferManager`: Chainlink Automation upkeep that maintains a USDC buffer for the Card address
+  - Address: [0xedED33b4fb51584aac960a816b8ed4E3200b4A1C](https://snowtrace.io/address/0xedED33b4fb51584aac960a816b8ed4E3200b4A1C)
+
+- `StrategyRouter`: Router for managing multiple strategy modules
+  - Address: [0xE82Ea8B95D9F2076A462De5021531F3129a852c4](https://snowtrace.io/address/0xE82Ea8B95D9F2076A462De5021531F3129a852c4)
+
+- `StrategySuzakuBTCWrapper`: Router for managing multiple strategy modules
+  - Address: [0xE7a24D0080D69007Dd4dA7287D2F4324f0e51Fcb](https://snowtrace.io/address/0xE7a24D0080D69007Dd4dA7287D2F4324f0e51Fcb)
+
+### Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Compile contracts
+npx hardhat compile
+
+# Run tests
+npx hardhat test
+```
+
+### Development
+
+#### Prerequisites
+
+- Node.js v18+
+- Hardhat
+
+#### Environment Setup
+
+1. Copy `.env.example` to `.env`
+2. Fill in the required environment variables:
+   - Network RPC URLs
+   - API keys
+   - Contract addresses
+   - Private keys
+
+#### Deployment
+
+Deploy contracts to a network:
+
+```bash
+# Deploy to Fuji testnet
+npx hardhat run script/deploy.ts --network fuji
+
+# Deploy to Avalanche mainnet
+npx hardhat run script/deploy.ts --network avalanche
+```
+
+### Architecture
+
+#### CardVault
+
+- ERC-4626 compliant vault that wraps USDC
+- Mints cCARD-USDC tokens representing shares
+- Manages strategy allocations and yield generation
+
+#### BufferManager
+
+- Chainlink Automation compatible contract
+- Maintains a USDC buffer for the Card address
+- Automatically tops up when buffer falls below minimum
+
+#### StrategyRouter
+
+- Routes funds to different strategy modules
+- Manages strategy execution and harvesting
+- Implements IStrategy interface for vault compatibility
+
+#### Strategies
+
+- `StrategySuzaku`: Adapter to Suzaku LRT vault
+- `StrategyBenqi`: Adapter to Benqi USDC pool
+- Both strategies implement a common interface
+
+### Security
+
+- Access control through OpenZeppelin's AccessControl
+- Reentrancy protection
+- Comprehensive test coverage
 
 ## License
 
@@ -119,7 +170,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Related Repositories
 
-- [Vault Web Interface](https://github.com/tomi204/vault-web)
-- [Strategies Agent](https://github.com/lausuarez02/strategies-agent-sonic/)
-- [AI Strategy Engine](https://github.com/lausuarez02/strategies-ai-sonic/)
-- [Smart Contracts](https://github.com/lausuarez02/strategies-contracts-sonic/)
+- [Shogun Card Liquidity Contracts (contracts-avalanche)](https://github.com/shogunprotocol/contracts-avalanche)
