@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSwitchChain, useChainId } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
-// import { USDC_ABI, VAULT_ABI, USDC_ADDRESS, VAULT_ADDRESS } from '../lib/abis';
+import { USDC_ABI, VAULT_ABI, USDC_ADDRESS, VAULT_ADDRESS } from '../../../lib/abis';
 
 type DepositDrawerProps = {
   open: boolean;
@@ -30,26 +30,26 @@ export default function DepositDrawer({ open, onClose, vaultName }: DepositDrawe
   const isOnAvalanche = chainId === 43114;
 
   // Get USDC balance
-//   const { data: usdcBalance, isLoading: isLoadingBalance } = useBalance({
-//     address,
-//     token: USDC_ADDRESS,
-//     chainId: 146, // Sonic network chain ID
-//   });
+  const { data: usdcBalance, isLoading: isLoadingBalance } = useBalance({
+    address,
+    token: USDC_ADDRESS,
+    chainId: 43114, // Sonic network chain ID
+  });
 
-//   // Get USDC allowance
-//   const { data: allowance } = useReadContract({
-//     address: USDC_ADDRESS,
-//     abi: USDC_ABI,
-//     functionName: 'allowance',
-//     args: address ? [address, VAULT_ADDRESS] : undefined,
-//   });
+  // Get USDC allowance
+  const { data: allowance } = useReadContract({
+    address: USDC_ADDRESS,
+    abi: USDC_ABI,
+    functionName: 'allowance',
+    args: address ? [address, VAULT_ADDRESS] : undefined,
+  });
 
-//   // Get vault total assets
-//   const { data: totalAssets } = useReadContract({
-//     address: VAULT_ADDRESS,
-//     abi: VAULT_ABI,
-//     functionName: 'totalAssets',
-//   });
+  // Get vault total assets
+  const { data: totalAssets } = useReadContract({
+    address: VAULT_ADDRESS,
+    abi: VAULT_ABI,
+    functionName: 'totalAssets',
+  });
 
   // Approve USDC
   const { writeContract: approve, data: approveData } = useWriteContract();
@@ -65,7 +65,7 @@ export default function DepositDrawer({ open, onClose, vaultName }: DepositDrawe
   // Wait for deposit transaction
   const { data: depositReceipt, isLoading: isDepositingTx } = useWaitForTransactionReceipt({
     hash: depositData,
-    chainId: 146,
+    chainId: 43114,
   });
 
   // Prevent background scroll when open
@@ -104,9 +104,9 @@ export default function DepositDrawer({ open, onClose, vaultName }: DepositDrawe
   if (!open) return null;
 
   const handleMax = () => {
-    // if (usdcBalance) {
-    //   setAmount(formatUnits(usdcBalance.value, usdcBalance.decimals));
-    // }
+    if (usdcBalance) {
+      setAmount(formatUnits(usdcBalance.value, usdcBalance.decimals));
+    }
   };
 
   const handleDeposit = async () => {
@@ -126,25 +126,25 @@ export default function DepositDrawer({ open, onClose, vaultName }: DepositDrawe
     //   console.log('Vault total assets:', totalAssets?.toString());
 
       // Check if we need to approve first
-    //   if (!allowance || BigInt(allowance) < amountInWei) {
-    //     console.log('Approval needed');
-    //     setIsApproving(true);
-    //     try {
-    //       approve({
-    //         address: USDC_ADDRESS,
-    //         abi: USDC_ABI,
-    //         functionName: 'approve',
-    //         args: [VAULT_ADDRESS, amountInWei],
-    //         chainId: 146, // Explicitly set Sonic network for approval
-    //       });
-    //       console.log('Approval initiated');
-    //     } catch (err) {
-    //       console.error('Approval error:', err);
-    //       setError('Failed to approve USDC. Please try again.');
-    //       setIsApproving(false);
-    //       return;
-    //     }
-    //   }
+      if (!allowance || BigInt(allowance) < amountInWei) {
+        console.log('Approval needed');
+        setIsApproving(true);
+        try {
+          approve({
+            address: USDC_ADDRESS,
+            abi: USDC_ABI,
+            functionName: 'approve',
+            args: [VAULT_ADDRESS, amountInWei],
+            chainId: 43114, // Explicitly set Sonic network for approval
+          });
+          console.log('Approval initiated');
+        } catch (err) {
+          console.error('Approval error:', err);
+          setError('Failed to approve USDC. Please try again.');
+          setIsApproving(false);
+          return;
+        }
+      }
 
       // Wait for approval transaction to be mined
       if (isApprovingTx) {
@@ -152,21 +152,21 @@ export default function DepositDrawer({ open, onClose, vaultName }: DepositDrawe
         return;
       }
 
-    //   if (!allowance || BigInt(allowance) < amountInWei) {
-    //     setError('Insufficient allowance. Please try approving again.');
-    //     return;
-    //   }
+      if (!allowance || BigInt(allowance) < amountInWei) {
+        setError('Insufficient allowance. Please try approving again.');
+        return;
+      }
       
       setIsDepositing(true);
       try {
         console.log('Attempting deposit...');
-        // deposit({
-        //   address: VAULT_ADDRESS,
-        //   abi: VAULT_ABI,
-        //   functionName: 'deposit',
-        //   args: [amountInWei, address], // ERC4626 deposit takes assets and receiver
-        //   chainId: 146, // Explicitly set Sonic network for deposit
-        // });
+        deposit({
+          address: VAULT_ADDRESS,
+          abi: VAULT_ABI,
+          functionName: 'deposit',
+          args: [amountInWei, address], // ERC4626 deposit takes assets and receiver
+          chainId: 43114, // Explicitly set Sonic network for deposit
+        });
         
         console.log('Deposit transaction initiated');
       } catch (err) {
@@ -206,10 +206,9 @@ export default function DepositDrawer({ open, onClose, vaultName }: DepositDrawe
     { name: 'Silo', icon: '/yieldSources/siloLogo.png' },
   ];
 
-//   const formattedBalance = usdcBalance ? formatUnits(usdcBalance.value, usdcBalance.decimals) : '0';
-//   const isLoading = isLoadingBalance || isApprovingTx || isDepositingTx;
-//   const buttonDisabled = !amount || isLoading || parseFloat(amount) <= 0 || parseFloat(amount) > parseFloat(formattedBalance) || !address;
-  const buttonDisabled = !amount || parseFloat(amount) <= 0 || !address;
+  const formattedBalance = usdcBalance ? formatUnits(usdcBalance.value, usdcBalance.decimals) : '0';
+  const isLoading = isLoadingBalance || isApprovingTx || isDepositingTx;
+  const buttonDisabled = !amount || isLoading || parseFloat(amount) <= 0 || parseFloat(amount) > parseFloat(formattedBalance) || !address;
 
   return createPortal(
     <AnimatePresence>
@@ -255,7 +254,7 @@ export default function DepositDrawer({ open, onClose, vaultName }: DepositDrawe
                 <div className="w-full flex flex-col md:flex-row gap-4 mb-6">
                   <div className="flex-1 flex items-center justify-between bg-white rounded-2xl border border-gray-200 px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <Image src="/vaults/usdcModerateTest.png" alt="token" width={32} height={32} className="rounded-full" />
+                      <Image src="/usdc.png" alt="token" width={32} height={32} className="rounded-full" />
                       <div>
                         <div className="text-base font-semibold text-black">USDC</div>
                         <div className="text-xs text-gray-500">Avalanche</div>

@@ -26,9 +26,11 @@ const wagmiAdapter = new WagmiAdapter({
   })
 })
 
-// Initialize AppKit
-if (typeof window !== 'undefined' && projectId) {
-  createAppKit({
+// SSR-safe singleton pattern
+let appKit: ReturnType<typeof createAppKit> | undefined;
+if (!appKit) {
+  if (!projectId) throw new Error('NEXT_PUBLIC_PROJECT_ID is not set');
+  appKit = createAppKit({
     adapters: [wagmiAdapter],
     networks,
     projectId,
