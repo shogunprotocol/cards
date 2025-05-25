@@ -165,9 +165,9 @@ const slides = [
       <div className="space-y-8">
         <h2 className="text-4xl md:text-5xl font-extrabold text-black text-center">Demo</h2>
         <div className="flex justify-center">
-          <div className="w-64 h-96 bg-gray-200 rounded-lg shadow-lg flex items-center justify-center">
-            <video controls className="max-w-full max-h-full rounded-lg">
-              <source src="/demo-video.mp4" type="video/mp4" />
+          <div className="w-[712px] h-[684px] bg-gray-200 rounded-lg shadow-lg flex items-center justify-center">
+            <video controls className="w-full h-full object-contain rounded-lg">
+              <source src="/demosjoguncard.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
@@ -181,7 +181,11 @@ export default function Presentation() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length)
+    if (currentSlide === slides.findIndex(slide => slide.id === 'ai-treasury')) {
+      setCurrentSlide(slides.findIndex(slide => slide.id === 'demo'));
+    } else {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }
   }
 
   const prevSlide = () => {
@@ -193,9 +197,13 @@ export default function Presentation() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowRight') {
-        nextSlide()
+        if (currentSlide === slides.findIndex(slide => slide.id === 'ai-treasury')) {
+          setCurrentSlide(slides.findIndex(slide => slide.id === 'demo'));
+        } else {
+          nextSlide();
+        }
       } else if (event.key === 'ArrowLeft') {
-        prevSlide()
+        prevSlide();
       }
     }
 
@@ -204,7 +212,7 @@ export default function Presentation() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [])
+  }, [currentSlide])
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center relative">

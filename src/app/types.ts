@@ -1,4 +1,4 @@
-export type Chain = 'Ethereum' | 'Polygon' | 'Arbitrum' | 'Optimism' | 'Avalanche'
+export type Chain = 'Ethereum' | 'Polygon' | 'Arbitrum' | 'Optimism' | 'avalanche'
 export type CardType = 'moonwell' | 'default' | 'polar' | 'ing' | 'avalanche'
 
 export interface Card {

@@ -21,7 +21,7 @@ export default function AddCardModal({ onAdd, onClose }: AddCardModalProps) {
     onClose()
   }
 
-  const chains: Chain[] = ['Ethereum', 'Polygon', 'Arbitrum', 'Optimism']
+  const chains: Chain[] = ['avalanche','Ethereum', 'Polygon', 'Arbitrum', 'Optimism']
 
   return (
     <motion.div
@@ -32,48 +32,48 @@ export default function AddCardModal({ onAdd, onClose }: AddCardModalProps) {
       <motion.div
         initial={{ scale: 0.95 }}
         animate={{ scale: 1 }}
-        className="bg-white rounded-2xl p-6 w-full max-w-md relative"
+        className="bg-white rounded-2xl p-4 w-full max-w-md relative"
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
         >
-          <XMarkIcon className="h-6 w-6" />
+          <XMarkIcon className="h-5 w-5" />
         </button>
         
-        <h2 className="text-xl font-bold mb-4">Add New Card</h2>
+        <h2 className="text-lg font-bold mb-3 text-gray-900">Add New Card</h2>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-sm text-gray-500 mb-1">Card Name</label>
+            <label className="block text-xs text-gray-600 mb-1">Card Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
               placeholder="e.g. Main Spending Card"
               required
             />
           </div>
           
           <div>
-            <label className="block text-sm text-gray-500 mb-1">Wallet Address</label>
+            <label className="block text-xs text-gray-600 mb-1">Wallet Address</label>
             <input
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
               placeholder="0x..."
               required
             />
           </div>
           
           <div>
-            <label className="block text-sm text-gray-500 mb-1">Chain</label>
+            <label className="block text-xs text-gray-600 mb-1">Chain</label>
             <select
               value={chain}
               onChange={(e) => setChain(e.target.value as Chain)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
             >
               {chains.map((c) => (
                 <option key={c} value={c}>{c}</option>
@@ -82,11 +82,11 @@ export default function AddCardModal({ onAdd, onClose }: AddCardModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm text-gray-500 mb-1">Card Type</label>
+            <label className="block text-xs text-gray-600 mb-1">Card Type</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as 'moonwell' | 'default')}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
             >
               <option value="default">Default</option>
               <option value="moonwell">Moonwell</option>
@@ -95,7 +95,7 @@ export default function AddCardModal({ onAdd, onClose }: AddCardModalProps) {
           
           <button
             type="submit"
-            className="w-full bg-black text-white rounded-lg py-2 font-medium hover:bg-gray-800 transition-colors"
+            className="w-full bg-black text-white rounded-lg py-2 font-medium hover:bg-gray-800 transition-colors text-base"
           >
             Add Card
           </button>

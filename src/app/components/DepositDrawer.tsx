@@ -94,7 +94,7 @@ export default function DepositDrawer({ open, onClose, vaultName }: DepositDrawe
       setIsApproving(false);
       setIsDepositing(false);
       onClose();
-      router.push('/hop');
+      router.push('/');
     } else if (depositReceipt?.status === 'reverted') {
       setError('Transaction reverted. The vault might be paused or have restrictions. Please try a different amount or contact support.');
       setIsDepositing(false);

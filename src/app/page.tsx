@@ -5,7 +5,7 @@ import { WalletIcon, ChartBarIcon, Cog6ToothIcon, PlusIcon, CreditCardIcon, Glob
 import WalletManager from './components/WalletManager'
 import VaultManager from './components/VaultManager'
 import AddCardModal from './components/AddCardModal'
-import { Card, VaultState } from './types'
+import { Card, VaultState, Chain } from './types'
 import { v4 as uuidv4 } from 'uuid'
 import DepositDrawer from './components/DepositDrawer'
 import ConnectButton from './components/ConnectButton'
@@ -16,19 +16,6 @@ export default function Home() {
   const [showAddCard, setShowAddCard] = useState(false)
   const [showDepositDrawer, setShowDepositDrawer] = useState(false)
   const [cards, setCards] = useState<Card[]>([
-    {
-      id: '1',
-      name: 'Visa Avalanche',
-      address: '0x9abc...def0',
-      chain: 'Avalanche',
-      balance: 2345.67,
-      type: 'avalanche',
-      lastActivity: {
-        type: 'top-up',
-        amount: 1000,
-        timestamp: new Date()
-      }
-    },
     {
       id: '2',
       name: 'Moonwell × CYPHER',
@@ -105,7 +92,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Top Navigation */}
       {/* <nav className="fixed w-full bg-black/90 backdrop-blur-md z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -148,179 +135,129 @@ export default function Home() {
         </div>
       </nav> */}
 
-      {/* Mobile Wallet Header */}
-      <div className="md:hidden block px-4 pt-8 pb-4 bg-gray-50">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-black mb-2">Wallet</h1>
-          <ConnectButton />
-        </div>
-        <div className="flex items-center justify-between mt-2">
-          <div>
-            <div className="text-3xl font-bold text-black">
-              {isVaultLoading ? '...' : `$${vaultBalance ? (Number(vaultBalance) / 1e6) : '0.00'}`}
-            </div>
+      {/* Unified Wallet Header for all screen sizes */}
+      <div className="px-4 pt-8 pb-4 bg-gray-50 flex items-center justify-between">
+        <h1 className="text-2xl md:text-3xl font-bold text-black mb-2">Wallet</h1>
+        <ConnectButton />
+      </div>
+      <div className="px-4 flex items-center justify-between mt-2 mb-4">
+        <div>
+          <div className="text-3xl md:text-4xl font-bold text-black">
+            {isVaultLoading ? '...' : `$${vaultBalance ? (Number(vaultBalance) / 1e6) : '0.00'}`}
           </div>
-          <button
-            className="bg-black text-white rounded-lg px-4 py-2 font-medium text-base hover:bg-gray-800 transition-colors w-24"
-            onClick={() => setShowDepositDrawer(true)}
-          >
-            Deposit
-          </button>
         </div>
+        <button
+          className="bg-black text-white rounded-lg px-4 py-2 font-medium text-base hover:bg-gray-800 transition-colors w-24 shadow-md"
+          onClick={() => setShowDepositDrawer(true)}
+        >
+          Deposit
+        </button>
       </div>
 
       {/* Main Content */}
-      <main className="pt-24 md:p-12 bg-gray-50">
+      <main className="pt-4 md:p-12 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          {/* Desktop Header */}
-          <div className="hidden md:flex justify-between items-center mb-12">
-            <h1 className="text-3xl font-bold text-black">
-              Your Cards
-            </h1>
-          </div>
-
-          <div className="flex flex-col lg:flex-row gap-12">
-            {/* Left Side - Vault and Stats (Desktop only) */}
-            <div className="lg:w-1/3 space-y-8 hidden md:block">
-              {/* Vault Manager */}
-              <VaultManager 
-                vaultState={vaultState}
-                onDeposit={handleDeposit}
-              />
-
-              {/* Stats Grid - Reorganized as vertical stack */}
-              <div className="space-y-4">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-white rounded-2xl border border-gray-100"
+          {/* Cards Section - full width on all screens */}
+          <div className="flex flex-col w-full">
+            <div className="relative h-[600px]">
+              {cards.map((card, index) => (
+                <motion.div 
+                  key={card.id}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ 
+                    y: index * -40,
+                    opacity: 1,
+                    scale: 1 - (index * 0.02)
+                  }}
+                  whileHover={{ 
+                    y: index * -60,
+                    scale: 1,
+                    zIndex: 20
+                  }}
+                  transition={{
+                    duration: 0.2,
+                    ease: "easeInOut"
+                  }}
+                  className="absolute w-full cursor-pointer top-[40px]"
+                  style={{ 
+                    zIndex: cards.length - index,
+                  }}
                 >
-                  <h3 className="text-gray-500 text-sm">Monthly Yield</h3>
-                  <p className="text-2xl font-bold text-green-500 mt-2">+16.67%</p>
-                  <p className="text-sm text-gray-500 mt-1">From USDC deposits</p>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-white rounded-2xl border border-gray-100"
-                >
-                  <h3 className="text-gray-500 text-sm">Active Strategy</h3>
-                  <p className="text-2xl font-bold text-black mt-2">Aave Pool</p>
-                  <p className="text-sm text-gray-500 mt-1">4.2% APY</p>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-white rounded-2xl border border-gray-100"
-                >
-                  <h3 className="text-gray-500 text-sm">Next Top-up</h3>
-                  <p className="text-2xl font-bold text-black mt-2">2d 14h</p>
-                  <p className="text-sm text-gray-500 mt-1">When balance $100</p>
-                </motion.div>
-              </div>
-            </div>
-
-            {/* Right Side - Cards (full width on mobile) */}
-            <div className="lg:w-2/3 w-full">
-              <div className="relative h-[600px]">
-                {cards.map((card, index) => (
-                  <motion.div 
-                    key={card.id}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ 
-                      y: index * -40,
-                      opacity: 1,
-                      scale: 1 - (index * 0.02)
-                    }}
-                    whileHover={{ 
-                      y: index * -60,
-                      scale: 1,
-                      zIndex: 20
-                    }}
-                    transition={{
-                      duration: 0.2,
-                      ease: "easeInOut"
-                    }}
-                    className="absolute w-full cursor-pointer top-[40px]"
-                    style={{ 
-                      zIndex: cards.length - index,
-                    }}
-                  >
-                    <div className="rounded-3xl p-4">
-                      <div className={`aspect-[1.586/1] max-w-lg mx-auto flex flex-col justify-between p-6 rounded-2xl shadow-xl relative overflow-hidden
-                        ${card.type === 'moonwell' 
-                          ? 'bg-[#1E3A8A]' 
-                          : card.type === 'avalanche'
-                          ? 'bg-[#E84142]'
-                          : 'bg-gradient-to-br from-white to-gray-100'}`}
-                      >
-                        {/* Background Circles - Only for Moonwell card */}
-                        {(card.type === 'moonwell') && (
-                          <div className="absolute inset-0">
-                            <div className="absolute w-96 h-96 bg-blue-400/20 rounded-full -top-24 -right-24" />
-                            <div className="absolute w-96 h-96 bg-blue-600/20 rounded-full -bottom-24 -left-24" />
-                          </div>
-                        )}
-                        {card.type === 'avalanche' && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="bg-white rounded-full flex items-center justify-center" style={{ width: '120px', height: '120px' }}>
-                              <img src="/avaxLogo.png" alt="Avalanche" className="w-32 h-32" />
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Card Content */}
-                        <div className="relative">
-                          <div className="flex justify-between items-start">
-                            <div className="flex flex-col">
-                              <span className={`text-2xl font-light ${card.type === 'moonwell' ? 'text-white' : card.type === 'avalanche' ? 'text-white' : 'text-gray-900'}`}>
-                                {card.name}
-                              </span>
-                            </div>
-                            <img 
-                              src="/visa02.png" 
-                              alt="Visa" 
-                              className={`h-6 ${card.type === 'moonwell' || card.type === 'avalanche' ? 'brightness-200' : 'brightness-100'}`} 
-                            />
+                  <div className="rounded-3xl p-4">
+                    <div className={`aspect-[1.586/1] max-w-lg mx-auto flex flex-col justify-between p-6 rounded-2xl shadow-xl relative overflow-hidden
+                      ${card.type === 'moonwell' 
+                        ? 'bg-[#1E3A8A]' 
+                        : card.type === 'avalanche'
+                        ? 'bg-[#E84142]'
+                        : 'bg-gradient-to-br from-white to-gray-100'}`}
+                    >
+                      {/* Background Circles - Only for Moonwell card */}
+                      {(card.type === 'moonwell') && (
+                        <div className="absolute inset-0">
+                          <div className="absolute w-96 h-96 bg-blue-400/20 rounded-full -top-24 -right-24" />
+                          <div className="absolute w-96 h-96 bg-blue-600/20 rounded-full -bottom-24 -left-24" />
+                        </div>
+                      )}
+                      {card.type === 'avalanche' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="bg-white rounded-full flex items-center justify-center" style={{ width: '120px', height: '120px' }}>
+                            <img src="/avaxLogo.png" alt="Avalanche" className="w-32 h-32" />
                           </div>
                         </div>
-                        <div className="relative">
-                          <p className={`font-mono text-lg ${card.type === 'moonwell' || card.type === 'avalanche' ? 'text-white/80' : 'text-gray-600'}`}>
-                            •••• {card.address.slice(-4)}
-                          </p>
-                          <div className="mt-2">
-                            <p className={`text-xs ${card.type === 'moonwell' ? 'text-blue-200' : card.type === 'avalanche' ? 'text-red-200' : 'text-gray-500'}`}>
-                              Balance
-                            </p>
-                            <p className={`text-xl font-bold ${card.type === 'moonwell' || card.type === 'avalanche' ? 'text-white' : 'text-gray-900'}`}>
-                              ${card.balance.toFixed(2)}
-                            </p>
+                      )}
+                      
+                      {/* Card Content */}
+                      <div className="relative">
+                        <div className="flex justify-between items-start">
+                          <div className="flex flex-col">
+                            <span className={`text-2xl font-light ${card.type === 'moonwell' ? 'text-white' : card.type === 'avalanche' ? 'text-white' : 'text-gray-900'}`}>
+                              {card.name}
+                            </span>
                           </div>
+                          <img 
+                            src="/visa02.png" 
+                            alt="Visa" 
+                            className={`h-6 ${card.type === 'moonwell' || card.type === 'avalanche' ? 'brightness-200' : 'brightness-100'}`} 
+                          />
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <p className={`font-mono text-lg ${card.type === 'moonwell' || card.type === 'avalanche' ? 'text-white/80' : 'text-gray-600'}`}>
+                          •••• {card.address.slice(-4)}
+                        </p>
+                        <div className="mt-2">
+                          <p className={`text-xs ${card.type === 'moonwell' ? 'text-blue-200' : card.type === 'avalanche' ? 'text-red-200' : 'text-gray-500'}`}>
+                            Balance
+                          </p>
+                          <p className={`text-xl font-bold ${card.type === 'moonwell' || card.type === 'avalanche' ? 'text-white' : 'text-gray-900'}`}>
+                            ${card.balance.toFixed(2)}
+                          </p>
                         </div>
                       </div>
                     </div>
-                  </motion.div>
-                ))}
-
-                {/* Add New Card Button */}
-                <motion.button
-                  onClick={() => setShowAddCard(true)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="absolute w-full p-6 bg-white rounded-3xl border-2 border-dashed border-gray-200 hover:border-black transition-colors group"
-                  style={{ 
-                    zIndex: 0,
-                    top: 'calc(100% - 180px)'
-                  }}
-                >
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className="p-3 rounded-full bg-gray-50 group-hover:bg-black transition-colors">
-                      <PlusIcon className="h-6 w-6 text-gray-400 group-hover:text-white" />
-                    </div>
-                    <p className="font-medium text-gray-900">Add New Card</p>
-                    <p className="text-sm text-gray-500">Connect your crypto-enabled card</p>
                   </div>
-                </motion.button>
-              </div>
+                </motion.div>
+              ))}
+
+              {/* Add New Card Button */}
+              <motion.button
+                onClick={() => setShowAddCard(true)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="absolute w-full p-3 bg-white rounded-2xl border-2 border-dashed border-gray-200 hover:border-black transition-colors group"
+                style={{ 
+                  zIndex: 0,
+                  top: 'calc(100% - 120px)'
+                }}
+              >
+                <div className="flex flex-col items-center space-y-1">
+                  <div className="p-2 rounded-full bg-gray-50 group-hover:bg-black transition-colors">
+                    <PlusIcon className="h-5 w-5 text-gray-400 group-hover:text-white" />
+                  </div>
+                  <p className="font-medium text-gray-900 text-base">Add New Card</p>
+                  <p className="text-xs text-gray-500">Connect your crypto-enabled card</p>
+                </div>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -328,7 +265,27 @@ export default function Home() {
 
       {showAddCard && (
         <AddCardModal
-          onAdd={handleAddCard}
+          onAdd={(card) => {
+            console.log('Card added:', card);
+            // Example: Add the Avalanche card
+            if (card.chain === 'avalanche') {
+              const newCard: Card = {
+                id: 'avalanche-card',
+                name: 'Visa Avalanche',
+                address: '0x9abc...def0',
+                chain: 'Avalanche' as Chain,
+                balance: 2345.67,
+                type: 'avalanche',
+                lastActivity: {
+                  type: 'top-up',
+                  amount: 1000,
+                  timestamp: new Date()
+                }
+              };
+              setCards(prev => [newCard, ...prev]);
+              console.log('Avalanche card added:', newCard);
+            }
+          }}
           onClose={() => setShowAddCard(false)}
         />
       )}
