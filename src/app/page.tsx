@@ -9,6 +9,9 @@ import { Card, VaultState } from './types'
 import { v4 as uuidv4 } from 'uuid'
 import DepositDrawer from './components/DepositDrawer'
 import ConnectButton from './components/ConnectButton'
+import { useAccount, useReadContract } from 'wagmi'
+import { VAULT_ADDRESS, VAULT_ABI } from '../../lib/abis'
+
 export default function Home() {
   const [showAddCard, setShowAddCard] = useState(false)
   const [showDepositDrawer, setShowDepositDrawer] = useState(false)
@@ -61,6 +64,12 @@ export default function Home() {
     strategy: 'Aave USDC Pool'
   })
 
+  const { address } = useAccount();
+  const { data: vaultBalance, isLoading: isVaultLoading } = useReadContract({
+    address: VAULT_ADDRESS,
+    abi: VAULT_ABI,
+    functionName: 'totalAssets',
+  });
 
   const handleAddCard = (cardData: Omit<Card, 'id' | 'balance' | 'lastActivity'>) => {
     const newCard: Card = {
@@ -147,7 +156,9 @@ export default function Home() {
         </div>
         <div className="flex items-center justify-between mt-2">
           <div>
-            <div className="text-3xl font-bold text-black">${cards.reduce((sum, c) => sum + c.balance, 0).toFixed(2)}</div>
+            <div className="text-3xl font-bold text-black">
+              {isVaultLoading ? '...' : `$${vaultBalance ? (Number(vaultBalance) / 1e6) : '0.00'}`}
+            </div>
           </div>
           <button
             className="bg-black text-white rounded-lg px-4 py-2 font-medium text-base hover:bg-gray-800 transition-colors w-24"
